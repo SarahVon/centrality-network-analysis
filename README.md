@@ -1,6 +1,6 @@
 # Centrality & Network Analysis
 
-An exploratory network-analysis project using a directed teacher friendship network. The workflow moves from graph construction and cohesion measures to node-level centrality measures and visual comparison.
+I analyze a directed teacher friendship network, moving from graph construction and cohesion measures to node-level centrality measures and visual comparison.
 
 ## Contents
 
@@ -23,7 +23,7 @@ The adjacency CSV records directed reported friendships: a `1` in row *i*, colum
 
 ## Graph construction and measures
 
-`centrality-analysis.R` reads the two project-relative CSVs and creates a directed `igraph` graph from the adjacency matrix. It calculates:
+`centrality-analysis.R` reads the two project-relative CSVs and creates a directed `igraph` graph from the adjacency matrix. I calculate:
 
 - weak components, density, compactness, dyadic reciprocity, and global clustering/transitivity;
 - in-degree as a direct count of incoming reported ties; and
@@ -54,7 +54,7 @@ The network records reported friendship ties, not every social or professional r
 
 ## Reproducibility
 
-Install R and `igraph`, then run `centrality-analysis.R` from the repository directory. It expects the two CSV files at the repository root and reproduces the graph construction, metrics, rankings, and plot logic using project-relative paths. Exact report prose is not reproduced; the included `report-summary.md` is the sanitized results boundary.
+Install R and `igraph`, then run `centrality-analysis.R` from the project directory. The script expects the two CSV files alongside it and reproduces the graph construction, metrics, rankings, and plot logic using project-relative paths. Exact report prose is not reproduced; `report-summary.md` provides the sanitized results boundary.
 
 ## Repository contents
 
