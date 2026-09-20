@@ -15,6 +15,14 @@ Reported results include 8 weak components, density 0.042, compactness 0.181, re
 - `centrality-network-analysis.png`, `centrality-graphs.pdf` — network visual outputs.
 - `cohesion-centrality-report.pdf` — original assignment report.
 
+## Visualizations
+
+![Centrality network analysis](centrality-network-analysis.png)
+
+*Network views comparing in-degree and betweenness centrality.*
+
+See the [centrality graphs PDF](centrality-graphs.pdf) for the accompanying graph figures.
+
 ## Data sources and permissions
 The CSVs are the original teacher friendship and attribute files supplied for the assignment. Publication was explicitly authorized by the project owner. Node IDs are pseudonymous codes in the supplied files; no names or direct contact details are included. Do not attempt to re-identify individuals, and verify institutional/participant permissions before redistribution beyond this portfolio context.
 
