@@ -1,109 +1,149 @@
-# HW2: Network Cohesion & Centrality --------------------------------------
-
-# Run this script from the repository directory; all inputs use project-relative paths.
+# Network Cohesion & Centrality Project --------------------------------------
 
 # load igraph library
 library(igraph)
 
-# read in friend data (links)
-friend_links <- read.csv("teacher-friendship-adjacency.csv", header = T, row.names = 1)
 
-# read in attribute data (nodes)
-friend_nodes <- read.csv("teacher-network-attributes.csv", header = T, row.names = 1)
+## Load Data -----------------------------------------------------------------
 
-# creating graph object
-friends_network <- graph_from_adjacency_matrix(as.matrix(friend_links), mode = "directed")
+# read directed friendship data
+friend_links <- read.csv(
+  "teacher-friendship-adjacency.csv",
+  header = TRUE,
+  row.names = 1
+)
+
+# read node attributes for context and potential follow-up analysis
+friend_nodes <- read.csv(
+  "teacher-network-attributes.csv",
+  header = TRUE,
+  row.names = 1
+)
 
 
-## QUESTIONS --------------------------------------------------------------
+## Build Network -------------------------------------------------------------
 
-# Question 1: Describing cohesion (typed in separate doc). 
+# create directed graph from the friendship adjacency matrix
+friends_network <- graph_from_adjacency_matrix(
+  as.matrix(friend_links),
+  mode = "directed"
+)
 
-# Question 2: Describing centrality (typed in separate doc).
 
-# Question 3: Finding number of weak components in friends graph
-components(friends_network,mode = "weak") # 8
+## Calculate Network Cohesion ------------------------------------------------
 
-# Question 4: Finding the density of the friends graph
-edge_density(friends_network, loops = F) # 0.042
+# calculate the number of weak components
+weak_components <- components(friends_network, mode = "weak")$no
 
-# Question 5: Finding the compactness of the network (using func from R Markdown)
-compactness <- function(friends_network) {
-  gra.geo <- distances(friends_network) ## generate geodesic distances
-  gra.rdist <- 1/gra.geo  ## reciprocal of geodesics
-  diag(gra.rdist) <- NA   ## assign NA to diagonal
-  gra.rdist[gra.rdist == 0] <- 0 
-  # Compactness = mean of reciprocal distances
-  comp.igph <- mean(gra.rdist, na.rm=TRUE) 
-  return(comp.igph)
+# calculate network density without self-loops
+network_density <- edge_density(friends_network, loops = FALSE)
+
+# calculate mean reciprocal distance across all node pairs
+compactness <- function(graph) {
+  graph_distances <- distances(graph)
+  reciprocal_distances <- 1 / graph_distances
+  diag(reciprocal_distances) <- NA
+  reciprocal_distances[reciprocal_distances == 0] <- 0
+  mean(reciprocal_distances, na.rm = TRUE)
 }
-compactness(friends_network)
 
-# Question 6: Finding the dyadic reciprocity
-reciprocity(friends_network, mode = c("ratio")) # 0.393
+network_compactness <- compactness(friends_network)
 
-# Question 7: Finding the global clustering coefficient
-transitivity(friends_network, type = "global") # 0.2
+# calculate the proportion of connected dyads with reciprocal ties
+network_reciprocity <- reciprocity(friends_network, mode = "ratio")
 
-# Question 8: Interpreting each of the measures above (typed in separate doc).
+# calculate the global clustering coefficient
+global_clustering <- transitivity(friends_network, type = "global")
 
-# Generating the in-degree and betweeness for the graph to answer the last few questions
+# combine and print the cohesion results
+cohesion_results <- data.frame(
+  measure = c(
+    "weak components",
+    "density",
+    "compactness",
+    "dyadic reciprocity",
+    "global clustering coefficient"
+  ),
+  value = c(
+    weak_components,
+    network_density,
+    network_compactness,
+    network_reciprocity,
+    global_clustering
+  )
+)
+
+print(cohesion_results)
+
+
+## Calculate Centrality ------------------------------------------------------
+
+# calculate in-degree and normalized betweenness for each actor
 friends_in_degree <- degree(friends_network, mode = "in")
-friends_betweenness <- betweenness(friends_network, directed = T, normalized = T)
+friends_betweenness <- betweenness(
+  friends_network,
+  directed = TRUE,
+  normalized = TRUE
+)
 
-# Create a data frame with both the centrality measures
-centrality_data <- data.frame(friends_in_degree, friends_betweenness)
+# combine both centrality measures into one data frame
+centrality_data <- data.frame(
+  actor = names(friends_in_degree),
+  in_degree = as.numeric(friends_in_degree),
+  betweenness = as.numeric(friends_betweenness),
+  row.names = NULL
+)
 
-# Question 9: Identifying the two most central actors as measured by in-degree
-centrality_data[order(-centrality_data$friends_in_degree),][1:2,]
+# identify and print the two highest-ranked actors for each measure
+top_in_degree <- centrality_data[
+  order(-centrality_data$in_degree),
+][1:2, ]
 
-# Question 10: Identifying the two most central actors as measured by betweenness
-centrality_data[order(-centrality_data$friends_betweenness),][1:2,]
+top_betweenness <- centrality_data[
+  order(-centrality_data$betweenness),
+][1:2, ]
 
-# Question 11: Explaining how the two measures can identify different central
-# actors and describing which would best describe "popularity". (typed in separate doc)
+print(top_in_degree)
+print(top_betweenness)
 
-# Plotting two graphs with one weighted by in-degree and the other by betweenness
 
-# creating our grid
-par(mfrow=c(1,2), mar=c(1,1,1,1))
+## Visualize Centrality ------------------------------------------------------
 
-# set seed
+# export two versions of the network using the same layout
+png(
+  "centrality-network-analysis.png",
+  width = 1800,
+  height = 1000,
+  res = 150
+)
+
+# create a side-by-side plotting grid
+par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
+
+# set seed so both plots use a comparable layout
 set.seed(123)
 
-# plot in-degree
-plot(friends_network, 
-     # vertex size based on in-degree
-     vertex.size = centrality_data$friends_in_degree*5, 
-     # no vertex labels
-     vertex.label = NA,
-     # arrow size
-     edge.arrow.size = 0.1, 
-     # vertex color
-     vertex.color = "seagreen",
-     # edge color
-     edge.color = "gray40",
-     # title
-     main = "In-Degree Centrality")
+# plot node size by in-degree
+plot(
+  friends_network,
+  vertex.size = centrality_data$in_degree * 5,
+  vertex.label = NA,
+  edge.arrow.size = 0.1,
+  vertex.color = "seagreen",
+  edge.color = "gray40",
+  main = "In-Degree Centrality"
+)
 
-# set seed
+# reset seed to repeat the layout
 set.seed(123)
 
-# plot betweenness
-plot(friends_network, 
-     # vertex size based on betweenness
-     vertex.size = centrality_data$friends_betweenness*600,
-     # no vertex labels
-     vertex.label = NA, 
-     # arrow size
-     edge.arrow.size = 0.1, 
-     # vertex color
-     vertex.color = "seagreen",
-     # edge color
-     edge.color = "gray40",
-     # title
-     main = "Betweenness Centrality")
-
-
-
-
+# plot node size by betweenness
+plot(
+  friends_network,
+  vertex.size = centrality_data$betweenness * 600,
+  vertex.label = NA,
+  edge.arrow.size = 0.1,
+  vertex.color = "seagreen",
+  edge.color = "gray40",
+  main = "Betweenness Centrality"
+)
