@@ -99,5 +99,4 @@ The script requires the two CSV files listed above. Before running it, confirm t
 | [`teacher-network-attributes.csv`](teacher-network-attributes.csv) | Pseudonymized node attributes |
 | [`centrality-network-analysis.png`](centrality-network-analysis.png) | Side-by-side in-degree and betweenness network visualization |
 | [`centrality-graphs.pdf`](centrality-graphs.pdf) | PDF version of the paired network plots |
-| [`report-summary.md`](report-summary.md) | Additional interpretation and project notes |
 | `README.md` | Project overview, methods, findings, and reproducibility notes |
